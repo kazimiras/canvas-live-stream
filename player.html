@@ -1,0 +1,24 @@
+<html>
+<head> 
+	<script src="http://localhost:3000/socket.io/socket.io.js"></script> 
+    <script language="javascript"> 
+		window.onload = function(e) { 
+			var socket = io.connect('http://localhost:3000');
+			var canvas = document.getElementById('canvas'); 
+			var ctx = canvas.getContext('2d');
+			var imageData = ctx.getImageData(0, 0,  canvas.width, canvas.height);
+	  
+			socket.on('play', function (image) { 
+				console.log(image);
+				var dataSrc32 = new Uint32Array(image); 
+				var dataCopy = new Uint8ClampedArray(dataSrc32.buffer); 
+				if(dataCopy) imageData.data.set(dataCopy)
+				ctx.putImageData( imageData , 0, 0); 
+			}); 
+		};
+	</script> 
+</head>
+<body> 
+	Try play canvas:<br/><canvas id="canvas" width="50" height="50"></canvas>
+</body>
+</html>

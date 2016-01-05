@@ -1,0 +1,45 @@
+<html>
+<head>
+	<script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script language="javascript"> 
+	 
+	var socket = io.connect('http://localhost:3000'); 
+	
+	document.addEventListener('DOMContentLoaded', function() { 
+		var video = document.getElementById('video'); 
+		var canvas = document.getElementById('canvas');
+		var content = canvas.getContext('2d');
+	  
+		video.addEventListener('play', function(){
+			draw(this,content,Math.floor(canvas.clientWidth),Math.floor(canvas.clientHeight));
+		},false);
+	 
+	},false);  
+	
+	function draw(video,content,width,height) {
+		if(video.paused || video.ended)	return false;
+		content.drawImage(video,0,0,width,height);  
+		setTimeout(function() {
+			draw(video,content,width,height);    
+			var image = content.getImageData(0,0,width,height);  
+			var image_array = new Uint32Array(image.data.buffer); 
+			var arr =[];
+			for( var i in image_array ) {
+				if (image_array.hasOwnProperty(i)){
+				   arr.push(image_array[i]);
+				}
+			} 
+			socket.emit("play", arr); 
+		},2500);
+	}  
+	</script> 
+</head>
+<body> 
+    <canvas id="canvas" width="50" height="50"></canvas>
+	
+	<video id="video" width="50" height="50" controls autoplay muted>
+		<source src="sample.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>
+	</video>
+
+</body>
+</html>
